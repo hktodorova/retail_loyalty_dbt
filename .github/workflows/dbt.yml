@@ -27,6 +27,18 @@ jobs:
       - name: Check dbt version
         run: python -m dbt.cli.main --version
 
+      - name: Create dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<'EOF'
+          retail_loyalty_dbt:
+            target: dev
+            outputs:
+              dev:
+                type: duckdb
+                path: retail_loyalty.duckdb
+                threads: 4
+          EOF        
       - name: Seed raw data
         run: python -m dbt.cli.main seed --full-refresh
 
