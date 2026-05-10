@@ -10,6 +10,10 @@ jobs:
   dbt-build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./retail_loyalty_dbt
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,7 +42,11 @@ jobs:
                 type: duckdb
                 path: retail_loyalty.duckdb
                 threads: 4
-          EOF        
+          EOF
+
+      - name: Install dbt packages
+        run: python -m dbt.cli.main deps
+
       - name: Seed raw data
         run: python -m dbt.cli.main seed --full-refresh
 
