@@ -1,0 +1,43 @@
+
+# Retail Orders, Payments & Loyalty Pipeline
+# Author: Hristina Todorova
+
+name: 'retail_loyalty_dbt'
+version: '1.0.0'
+
+profile: 'retail_loyalty_dbt'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+seeds:
+  retail_loyalty_dbt:
+    points_thresholds:
+      +column_types:
+        threshold_id: INTEGER
+        min_amount: DOUBLE
+        max_amount: DOUBLE
+        points_awarded: INTEGER
+
+models:
+  retail_loyalty_dbt:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table
+    analytics:
+      +materialized: table
+
+data_tests:
+  retail_loyalty_dbt:
+    +severity: warn
