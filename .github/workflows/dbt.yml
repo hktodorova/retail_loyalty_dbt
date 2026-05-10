@@ -8,11 +8,7 @@ on:
 
 jobs:
   dbt-build:
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./retail_loyalty_dbt
+    runs-on: ubuntu-latest    
 
     steps:
       - name: Checkout repository
