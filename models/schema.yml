@@ -1,0 +1,130 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Cleaned and deduplicated order headers from the raw source. Normalizes status and channel fields, casts types, and filters out null order_ids."
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - not_null
+
+  - name: stg_order_details
+    description: "Cleaned order line items. Handles the malformed unit_price column (strips ' CHF' suffix), fills missing quantities, and deduplicates exact-duplicate rows."
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: line_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+
+  - name: stg_payments
+    description: "Cleaned and deduplicated payment events. Normalizes payment_type and payment_status to lowercase, fills null amounts with 0, and keeps the latest event per payment_id."
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+      - name: payment_status
+        tests:
+          - accepted_values:
+              values: ['success', 'failed', 'pending', 'refunded']
+      - name: payment_type
+        tests:
+          - accepted_values:
+              values: ['card', 'cash', 'installment', 'loyalty_card', 'points', 'refund']
+
+  - name: stg_customers
+    description: "Cleaned customer dimension source. Standardizes segment to uppercase, trims whitespace, and deduplicates by customer_id keeping the most recent signup record."
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_customer_cards
+    description: "Cleaned loyalty card records. Filters out null or empty card_ids and deduplicates by card_id, keeping the most recently created card."
+    columns:
+      - name: card_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: card_status
+        tests:
+          - accepted_values:
+              values: ['active', 'inactive', 'blocked']
+
+  - name: stg_products
+    description: "Cleaned product source. Standardizes category to uppercase, fills null prices with 0, and deduplicates by product_id."
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_orders
+    description: "One row per order. Combines order headers, line-level revenue amounts, and aggregated payment data. Includes flags for payment status (fully paid, partially paid, overpaid), valid revenue classification, and installment tracking."
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_expected_amount
+        tests:
+          - not_null
+      - name: net_collected_amount
+        tests:
+          - not_null
+
+  - name: fact_payments
+    description: "One row per payment event. Incremental model using payment_id as the unique key. Includes boolean flags for payment outcome and derived cash collected and refund amounts."
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+
+  - name: fact_order_lines
+    description: "One row per order line. Calculates gross and net line amounts and enriches each line with product category from the product dimension."
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: line_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+
+  - name: fact_card_points_ledger
+    description: "Combined loyalty points ledger. Merges raw ledger events with computed earn events derived from order thresholds. Each row is a single point transaction (earn or redeem) for a loyalty card."
+    columns:
+      - name: card_id
+        tests:
+          - not_null
+      - name: points_delta
+        tests:
+          - not_null

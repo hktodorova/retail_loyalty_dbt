@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw retail operational source data loaded through dbt seeds.
+
+    schema: main
+
+    tables:
+      - name: customers
+        description: Raw customer master data.
+
+      - name: customer_cards
+        description: Raw loyalty card records.
+
+      - name: products
+        description: Raw product catalog.
+
+      - name: orders_master
+        description: Raw order headers.
+
+      - name: order_details
+        description: Raw order line items.
+
+      - name: payments
+        description: Raw payment event data.
+
+      - name: points_thresholds
+        description: Raw loyalty points threshold configuration.
+
+      - name: card_points_ledger
+        description: Raw loyalty points ledger.

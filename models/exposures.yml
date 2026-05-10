@@ -1,0 +1,20 @@
+version: 2
+
+exposures:
+  - name: retail_kpi_dashboard
+    label: Retail KPI Dashboard
+    type: dashboard
+    maturity: medium
+    description: >
+      Business dashboard tracking retail revenue, payment performance,
+      loyalty card usage, and customer segment revenue.
+
+    depends_on:
+      - ref('kpi_summary')
+      - ref('revenue_by_day')
+      - ref('revenue_by_customer_segment')
+      - ref('loyalty_card_summary')
+
+    owner:
+      name: Hristina Todorova
+      email: hristina.todorova@gmail.com
