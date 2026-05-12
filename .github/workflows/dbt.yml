@@ -4,11 +4,16 @@ on:
   push:
     branches:
       - main
+
   pull_request:
 
 jobs:
   dbt-build:
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: dbt
 
     steps:
       - name: Checkout repository
@@ -30,9 +35,11 @@ jobs:
       - name: Create dbt profile
         run: |
           mkdir -p ~/.dbt
+
           cat > ~/.dbt/profiles.yml <<'EOF'
           retail_loyalty_dbt:
             target: dev
+
             outputs:
               dev:
                 type: duckdb
@@ -45,6 +52,9 @@ jobs:
 
       - name: Seed raw data
         run: python -m dbt.cli.main seed --full-refresh
+
+      - name: Parse dbt project
+        run: python -m dbt.cli.main parse
 
       - name: Build dbt models
         run: python -m dbt.cli.main run
