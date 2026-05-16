@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 20
 
     env:
-      DBT_PROFILES_DIR: ~/.dbt
+      DBT_PROFILES_DIR: ${{ github.workspace }}/.dbt
 
     steps:
       - name: Checkout repository
@@ -34,9 +34,9 @@ jobs:
 
       - name: Create dbt profile
         run: |
-          mkdir -p ~/.dbt
+          mkdir -p "$DBT_PROFILES_DIR"
 
-          cat > ~/.dbt/profiles.yml <<'EOF'
+          cat > "$DBT_PROFILES_DIR/profiles.yml" <<'EOF'
           retail_loyalty_dbt:
             target: dev
             outputs:
