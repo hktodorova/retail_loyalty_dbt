@@ -67,7 +67,6 @@ retail_loyalty_dbt/
 ├── seeds/
 ├── snapshots/
 ├── tests/
-├── dbt_project.yml
 ├── .gitignore
 └── README.md
 ```

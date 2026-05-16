@@ -4,16 +4,16 @@ on:
   push:
     branches:
       - main
-
   pull_request:
+  workflow_dispatch:
 
 jobs:
   dbt-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
-    defaults:
-      run:
-        working-directory: dbt
+    env:
+      DBT_PROFILES_DIR: ~/.dbt
 
     steps:
       - name: Checkout repository
@@ -23,14 +23,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install dbt-core dbt-duckdb
+          pip install "dbt-core==1.8.7" "dbt-duckdb==1.8.4"
 
       - name: Check dbt version
-        run: python -m dbt.cli.main --version
+        run: dbt --version
 
       - name: Create dbt profile
         run: |
@@ -39,7 +40,6 @@ jobs:
           cat > ~/.dbt/profiles.yml <<'EOF'
           retail_loyalty_dbt:
             target: dev
-
             outputs:
               dev:
                 type: duckdb
@@ -48,19 +48,19 @@ jobs:
           EOF
 
       - name: Install dbt packages
-        run: python -m dbt.cli.main deps
+        run: dbt deps
 
       - name: Seed raw data
-        run: python -m dbt.cli.main seed --full-refresh
+        run: dbt seed --full-refresh
 
       - name: Parse dbt project
-        run: python -m dbt.cli.main parse
+        run: dbt parse
 
       - name: Build dbt models
-        run: python -m dbt.cli.main run
+        run: dbt run
 
       - name: Run dbt tests
-        run: python -m dbt.cli.main test
+        run: dbt test
 
       - name: Generate dbt docs
-        run: python -m dbt.cli.main docs generate
+        run: dbt docs generate

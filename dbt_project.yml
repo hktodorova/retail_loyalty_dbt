@@ -1,9 +1,9 @@
-
 # Retail Orders, Payments & Loyalty Pipeline
 # Author: Hristina Todorova
 
 name: 'retail_loyalty_dbt'
 version: '1.0.0'
+config-version: 2
 
 profile: 'retail_loyalty_dbt'
 
@@ -31,10 +31,13 @@ models:
   retail_loyalty_dbt:
     staging:
       +materialized: view
+
     intermediate:
       +materialized: view
+
     marts:
       +materialized: table
+
     analytics:
       +materialized: table
 
